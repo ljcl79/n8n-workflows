@@ -1,0 +1,207 @@
+{
+  "name": "Aprobación CFO",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1igZgdblqVzxrXRMweDuvXj-fZRETyKFw3GuYrm6ql84",
+          "mode": "list",
+          "cachedResultName": "Registro de Gastos - Techcorp",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1igZgdblqVzxrXRMweDuvXj-fZRETyKFw3GuYrm6ql84/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1igZgdblqVzxrXRMweDuvXj-fZRETyKFw3GuYrm6ql84/edit#gid=0"
+        },
+        "event": "rowUpdate",
+        "options": {
+          "columnsToWatch": [
+            "estado"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -256,
+        0
+      ],
+      "id": "c7eb2418-a5ba-4956-a460-ece889f72b77",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "tfVya9oYeivMCug3",
+          "name": "Conexión a Google Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "cc023d82-1b73-4213-92a8-dcdaef0b0c61",
+              "leftValue": "={{ $json.estado }}",
+              "rightValue": "Aprobado",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -48,
+        0
+      ],
+      "id": "16228890-bdc9-4a59-a135-b1a2d90a8172",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "ljcl79@gmail.com",
+        "subject": "Gasto Aprobado",
+        "message": "=El gasto del empleado: {{ $('Google Sheets Trigger').item.json.empleado_nombre }} fue aprobado.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        160,
+        -96
+      ],
+      "id": "584dd600-b6d0-4987-afff-cfbd460f6ea3",
+      "name": "Envia email para finanzas",
+      "webhookId": "99fbac75-002e-480e-8332-060c44167354",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "fPntUGDKgZs5ZieG",
+          "name": "Conexión con GMail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Google Sheets Trigger').item.json.empleado_email }}",
+        "subject": "Gasto Aprobado",
+        "message": "=Estimado empleado, su gasto de valor:  {{ $('Google Sheets Trigger').item.json.monto }} fue aprobado.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        368,
+        -96
+      ],
+      "id": "ac9138db-c252-405c-8bee-cfd1a794ae19",
+      "name": "Envia email de aprobación para empleado",
+      "webhookId": "40fb377b-c516-42a8-81f2-857bcdb98b8c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "fPntUGDKgZs5ZieG",
+          "name": "Conexión con GMail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Google Sheets Trigger').item.json.empleado_email }}",
+        "subject": "Gasto Aprobado",
+        "message": "=Estimado empleado, su gasto de valor:  {{ $('Google Sheets Trigger').item.json.monto }} fue rechazado.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        160,
+        80
+      ],
+      "id": "ab42bf7a-f683-4560-a12f-4c7ed7106c94",
+      "name": "Envia email de rechazo para empleado",
+      "webhookId": "40fb377b-c516-42a8-81f2-857bcdb98b8c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "fPntUGDKgZs5ZieG",
+          "name": "Conexión con GMail"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Envia email para finanzas",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Envia email de rechazo para empleado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Envia email para finanzas": {
+      "main": [
+        [
+          {
+            "node": "Envia email de aprobación para empleado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "f1b46e98-4111-45eb-98db-22e48a60da8a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d29f50722c25734addaaf9a47ad108a4c865616a5188547899673acb8fb73e78"
+  },
+  "id": "HdbgH5C3wc0PUnOLi3dN0",
+  "tags": []
+}

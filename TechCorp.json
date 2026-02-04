@@ -1,0 +1,535 @@
+{
+  "name": "TechCorp",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Registros de Gastos - TechCorp",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Nombre empleado",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email empleado",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Monto del gasto",
+              "fieldType": "number",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Categoria",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Finanzas"
+                  },
+                  {
+                    "option": "Ventas"
+                  },
+                  {
+                    "option": "Soporte"
+                  },
+                  {
+                    "option": "Otro"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Descripción",
+              "fieldType": "textarea",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Imagen",
+              "fieldType": "file",
+              "multipleFiles": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        -656,
+        -160
+      ],
+      "id": "0cc2c001-084e-4b6b-9d8b-96266ea458af",
+      "name": "On form submission",
+      "webhookId": "6179a868-3ce2-4872-80ba-5ed751afa415"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"fechaHora\": \"{{ $now.format('yyyy-MM-dd HH:mm:ss') }}\",\n\"urlImagen\": \"{{ $json.webViewLink}}\",\n\"Nombre empleado\" : \"{{ $('On form submission').item.json['Nombre empleado'] }}\",\n\"Email empleado\" : \"{{ $('On form submission').item.json['Email empleado'] }}\",\n\"Monto del gasto\" : {{ $('On form submission').item.json['Monto del gasto'] }},\n\"Categoria\" : \"{{ $('On form submission').item.json['Categoria']}}\",\n\"Descripción\" : \"{{ $('On form submission').item.json['Descripción']}}\",\n}\n",
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -224,
+        -160
+      ],
+      "id": "64eb26cd-8a0d-4882-8b61-00bb2b273c84",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "dff48bc6-dfa4-432b-8f5c-a17b31b45de1",
+              "leftValue": "={{ $json['Monto del gasto'] }}",
+              "rightValue": 1000,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -32,
+        -160
+      ],
+      "id": "8847e2cd-a789-4528-9c57-c21461421c99",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1igZgdblqVzxrXRMweDuvXj-fZRETyKFw3GuYrm6ql84",
+          "mode": "list",
+          "cachedResultName": "Registro de Gastos - Techcorp",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1igZgdblqVzxrXRMweDuvXj-fZRETyKFw3GuYrm6ql84/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1igZgdblqVzxrXRMweDuvXj-fZRETyKFw3GuYrm6ql84/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ $json.fechaHora }}",
+            "empleado_email": "={{ $json['Email empleado'] }}",
+            "empleado_nombre": "={{ $json['Nombre empleado'] }}",
+            "monto": "={{ $json['Monto del gasto'] }}",
+            "categoria": "={{ $json.Categoria }}",
+            "descripcion": "={{ $json['Descripción'] }}",
+            "estado": "Aprobado",
+            "url_imagen": "={{ $('Edit Fields').item.json.urlImagen }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "empleado_nombre",
+              "displayName": "empleado_nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "empleado_email",
+              "displayName": "empleado_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "monto",
+              "displayName": "monto",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "categoria",
+              "displayName": "categoria",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "descripcion",
+              "displayName": "descripcion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "estado",
+              "displayName": "estado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "url_imagen",
+              "displayName": "url_imagen",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        256,
+        -16
+      ],
+      "id": "960f2dbd-daa3-44a0-b66a-104122deb81a",
+      "name": "Agregar Gasto Aprobado",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "CgaJcS88hNsbdL4z",
+          "name": "Conexión con Google Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1igZgdblqVzxrXRMweDuvXj-fZRETyKFw3GuYrm6ql84",
+          "mode": "list",
+          "cachedResultName": "Registro de Gastos - Techcorp",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1igZgdblqVzxrXRMweDuvXj-fZRETyKFw3GuYrm6ql84/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1igZgdblqVzxrXRMweDuvXj-fZRETyKFw3GuYrm6ql84/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ $('Edit Fields').item.json.fechaHora }}",
+            "empleado_nombre": "={{ $('Edit Fields').item.json['Nombre empleado'] }}",
+            "empleado_email": "={{ $('Edit Fields').item.json['Email empleado'] }}",
+            "monto": "={{ $('Edit Fields').item.json['Monto del gasto'] }}",
+            "categoria": "={{ $('Edit Fields').item.json.Categoria }}",
+            "descripcion": "={{ $('Edit Fields').item.json['Descripción'] }}",
+            "estado": "Pendiente",
+            "url_imagen": "={{ $('Edit Fields').item.json.urlImagen }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "empleado_nombre",
+              "displayName": "empleado_nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "empleado_email",
+              "displayName": "empleado_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "monto",
+              "displayName": "monto",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "categoria",
+              "displayName": "categoria",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "descripcion",
+              "displayName": "descripcion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "estado",
+              "displayName": "estado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "url_imagen",
+              "displayName": "url_imagen",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        240,
+        -208
+      ],
+      "id": "7fd7e341-019b-458b-bcc5-b4005099dbbe",
+      "name": "Agregar Gasto Pendiente",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "CgaJcS88hNsbdL4z",
+          "name": "Conexión con Google Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.empleado_email }}",
+        "subject": "=Gasto aprobado -  {{ $json.categoria }}",
+        "message": "=El gasto solicitado:\n\n{{ $json.descripcion }}\n\nFue aprobado.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        -16
+      ],
+      "id": "d8453c89-3c8b-480a-ac72-e2d46ba881e9",
+      "name": "Enviar email empleado",
+      "webhookId": "0cd414ac-3c2d-4c88-8faa-6c242f56d59e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "fPntUGDKgZs5ZieG",
+          "name": "Conexión con GMail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "ljcl79@gmail.com",
+        "subject": "Validación de Gasto",
+        "message": "=Por favor validar el siguiente gasto:\n\nEmpleado: {{ $('Edit Fields').item.json['Nombre empleado'] }}\nMonto: {{ $('Edit Fields').item.json['Monto del gasto'] }}\nDescripción: {{ $('Edit Fields').item.json['Descripción'] }}\n\nPara acceder haga click en:\n{{ $('Agregar Gasto Pendiente').params.documentId.cachedResultUrl }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        432,
+        -208
+      ],
+      "id": "e028578a-049e-4d4f-89b5-9f680f126491",
+      "name": "Enviar email CFO",
+      "webhookId": "fa179791-62bd-465e-bffc-3607bd9bbcb6",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "fPntUGDKgZs5ZieG",
+          "name": "Conexión con GMail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "Imagen",
+        "name": "={{ $json.Imagen.filename }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "https://drive.google.com/drive/folders/17z0WMEcgcczcpO7EmZjMnTd-15KYykYn",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -432,
+        -160
+      ],
+      "id": "4c729a03-f94d-4e6d-b779-426f85af5eeb",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "XgvCAm8CTaNk5Rkc",
+          "name": "Google Drive account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Agregar Gasto Pendiente",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Agregar Gasto Aprobado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agregar Gasto Aprobado": {
+      "main": [
+        [
+          {
+            "node": "Enviar email empleado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agregar Gasto Pendiente": {
+      "main": [
+        [
+          {
+            "node": "Enviar email CFO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "a67a93b4-6251-4d29-8581-8a17f316c96a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d29f50722c25734addaaf9a47ad108a4c865616a5188547899673acb8fb73e78"
+  },
+  "id": "B3I79x5cWcB_o9NYCnTqW",
+  "tags": []
+}

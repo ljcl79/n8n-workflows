@@ -1,0 +1,301 @@
+{
+  "name": "Clinica Vital",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        -144
+      ],
+      "id": "6a5867a7-9002-488f-b09d-e70308ffde25",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \n  \n\"kind\": \n\"calendar#event\",\n  \n  \n\"etag\": \n\"\\\"3540319667133886\\\"\",\n  \n  \n\"id\": \n\"8n6uhjngonh0bf4gismp9k9pr0\",\n  \n  \n\"status\": \n\"confirmed\",\n  \n  \n\"htmlLink\": \n\"https://www.google.com/calendar/event?eid=OG42dWhqbmdvbmgwYmY0Z2lzbXA5azlwcjAgbGpjbDc5QG0\",\n  \n  \n\"created\": \n\"2026-02-03T23:03:53.000Z\",\n  \n  \n\"updated\": \n\"2026-02-03T23:03:53.566Z\",\n  \n  \n\"summary\": \n\"Agendas de médicos (Leonardo Castillo)\",\n  \n  \n\"description\": \n\"<b>Reservada por</b>\\nLeonardo Castillo\\nljcl79@gmail.com\\n11989002224\",\n  \n  \n\"creator\": \n{\n  \n  \n  \n\"email\": \n\"ljcl79@gmail.com\",\n  \n  \n  \n\"self\": \ntrue\n  \n  \n},\n  \n  \n\"organizer\": \n{\n  \n  \n  \n\"email\": \n\"ljcl79@gmail.com\",\n  \n  \n  \n\"self\": \ntrue\n  \n  \n},\n  \n  \n\"start\": \n{\n  \n  \n  \n\"dateTime\": \n\"2026-02-05T09:00:00-03:00\",\n  \n  \n  \n\"timeZone\": \n\"America/Sao_Paulo\"\n  \n  \n},\n  \n  \n\"end\": \n{\n  \n  \n  \n\"dateTime\": \n\"2026-02-05T09:30:00-03:00\",\n  \n  \n  \n\"timeZone\": \n\"America/Sao_Paulo\"\n  \n  \n},\n  \n  \n\"iCalUID\": \n\"8n6uhjngonh0bf4gismp9k9pr0@google.com\",\n  \n  \n\"sequence\": \n0,\n  \n  \n\"attendees\": \n[\n  \n  \n  \n{\n  \n  \n  \n  \n\"email\": \n\"ljcl79@gmail.com\",\n  \n  \n  \n  \n\"organizer\": \ntrue,\n  \n  \n  \n  \n\"self\": \ntrue,\n  \n  \n  \n  \n\"responseStatus\": \n\"accepted\"\n  \n  \n  \n}\n  \n  \n],\n  \n  \n\"extendedProperties\": \n{\n  \n  \n  \n\"shared\": \n{\n  \n  \n  \n  \n\"goo.createdByAvailId\": \n\"6fqjghrhad7fn1477ro2jlivf9\",\n  \n  \n  \n  \n\"goo.createdBySet\": \n\"default_cita\"\n  \n  \n  \n}\n  \n  \n},\n  \n  \n\"reminders\": \n{\n  \n  \n  \n\"useDefault\": \ntrue\n  \n  \n},\n  \n  \n\"eventType\": \n\"default\"\n  \n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -128,
+        -144
+      ],
+      "id": "95563c1a-7913-4074-8bcc-3dc1acaf11d0",
+      "name": "Simulación de Evento"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "calendarId": {
+          "__rl": true,
+          "value": "ljcl79@gmail.com",
+          "mode": "list",
+          "cachedResultName": "ljcl79@gmail.com"
+        },
+        "triggerOn": "eventCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTrigger",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        48
+      ],
+      "id": "72a77988-3d9f-46f7-a068-cd18706f81c9",
+      "name": "Registro de evento",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "Z7CCBXU7N14iksWS",
+          "name": "Google Calendar account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a387ee57-fb53-4689-a04f-39879ae0411c",
+              "name": "Fecha",
+              "value": "={{ $json.start.dateTime.split('T')[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "65d018b8-5d2f-46cc-980a-096526039bf4",
+              "name": "Hora",
+              "value": "={{ $json.start.dateTime.split('T')[1].split('-')[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "5e7637e6-ad9f-4b4a-ae9c-ec08974c0ace",
+              "name": "Nombre",
+              "value": "={{ $json.description.split('\\n')[1] }}",
+              "type": "string"
+            },
+            {
+              "id": "bf5dd148-4955-4243-b786-1947f792792f",
+              "name": "Email",
+              "value": "={{ $json.description.split('\\n')[2] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef18ebf2-0e0a-448c-930b-2021c5e698ce",
+              "name": "Telefono",
+              "value": "={{ $json.description.split('\\n')[3] }}",
+              "type": "string"
+            },
+            {
+              "id": "4e743485-cf53-4d48-a9bc-e8669f214b3b",
+              "name": "timestamp",
+              "value": "={{ $now.format('yyyy-MM-dd HH:ii') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        80,
+        -144
+      ],
+      "id": "3dc7fd7f-497e-4548-92c1-a69716eb8258",
+      "name": "Datos paciente"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1DZle4aZkfPMIeznztuee35MOX1Gd6LYeujJ0rWcclEw",
+          "mode": "list",
+          "cachedResultName": "Clinica Salud Vital",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DZle4aZkfPMIeznztuee35MOX1Gd6LYeujJ0rWcclEw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DZle4aZkfPMIeznztuee35MOX1Gd6LYeujJ0rWcclEw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ $json.timestamp }}",
+            "paciente_nombre": "={{ $json.Nombre }}",
+            "paciente_email": "={{ $json.Email }}",
+            "fecha_cita": "={{ $json.Fecha }}",
+            "hora_cita": "={{ $json.Hora }}",
+            "telefono": "={{ $json.Telefono }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "paciente_nombre",
+              "displayName": "paciente_nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "paciente_email",
+              "displayName": "paciente_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fecha_cita",
+              "displayName": "fecha_cita",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "hora_cita",
+              "displayName": "hora_cita",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "telefono",
+              "displayName": "telefono",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "examenes_solicitados",
+              "displayName": "examenes_solicitados",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "detalle_examenes",
+              "displayName": "detalle_examenes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        288,
+        -144
+      ],
+      "id": "6a682725-e9fc-43a6-a3c8-45cb1b8847f3",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "mdtezfuq9TCMYSqC",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Simulación de Evento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simulación de Evento": {
+      "main": [
+        [
+          {
+            "node": "Datos paciente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Datos paciente": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registro de evento": {
+      "main": [
+        [
+          {
+            "node": "Datos paciente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "timezone": "America/Sao_Paulo",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "ada304c9-4783-4e98-ba36-382bf90efdc0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d29f50722c25734addaaf9a47ad108a4c865616a5188547899673acb8fb73e78"
+  },
+  "id": "QzDSXaxQ4_zlWX6G2kmLI",
+  "tags": []
+}

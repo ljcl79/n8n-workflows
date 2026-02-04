@@ -1,0 +1,150 @@
+{
+  "name": "Envio de examenes",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyHour"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1DZle4aZkfPMIeznztuee35MOX1Gd6LYeujJ0rWcclEw",
+          "mode": "list",
+          "cachedResultName": "Clinica Salud Vital",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DZle4aZkfPMIeznztuee35MOX1Gd6LYeujJ0rWcclEw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DZle4aZkfPMIeznztuee35MOX1Gd6LYeujJ0rWcclEw/edit#gid=0"
+        },
+        "event": "rowUpdate",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f73e38a6-f290-4d7f-a8ca-7352c77c211e",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "tfVya9oYeivMCug3",
+          "name": "Conexión a Google Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "8c07e181-78aa-4c11-879b-07f4cd46cd4b",
+              "leftValue": "={{ $json.examenes_solicitados }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "dab89f58-5ca8-449b-8e3b-d46b2d759df8",
+              "leftValue": "={{ $json.detalle_examenes }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        208,
+        0
+      ],
+      "id": "b569d215-cf2e-4029-bd88-17d883917b30",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "laboratorio@clinicavital.cl",
+        "subject": "=Examenes solicitados -  {{ $('Google Sheets Trigger').item.json.paciente_email }}",
+        "message": "=Por favor realizar los siguientes examenes:\n\n{{ $('Google Sheets Trigger').item.json.examenes_solicitados }}\n\nMás detalles:\n\n{{ $('Google Sheets Trigger').item.json.examenes_solicitados }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        -96
+      ],
+      "id": "3ee64b3b-bff5-45c5-9e40-dcba40b5f237",
+      "name": "Send a message",
+      "webhookId": "9fe00149-97c1-4e8f-82fe-acd9e84fbdaf",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "F1t314zQGu21pSVG",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "fcc3a9e3-ed3d-48ec-9437-88f6c5c4ef8e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d29f50722c25734addaaf9a47ad108a4c865616a5188547899673acb8fb73e78"
+  },
+  "id": "AwBMFXz4jUK8NNEHYZuEL",
+  "tags": []
+}
