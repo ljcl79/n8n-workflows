@@ -1,0 +1,196 @@
+{
+  "name": "AI Agent - Base de conocimiento en herramientas",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "mode": "webhook",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -896,
+        0
+      ],
+      "id": "b20313ee-1224-44b5-88b5-780a51528e48",
+      "name": "When chat message received",
+      "webhookId": "0d33ec1c-7c33-4606-b2d0-005157df0bbb"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Eres un asistente de ventas con acceso a nuestro catálogo actualizado. Responde la pregunta del cliente usando la información disponible en nuestra base de datos.\n\nUsa la herramienta de googleSheets para buscar en la base de datos de productos y devuelve información relevante sobre productos, precios y\ndisponibilidad.\n\nUsa la herramienta de siteSearch para extraer información de la página de preguntas frecuentes sobre nuestros productos como por ejemplo, costos de envio y tiempos de entrega\n\nPregunta del cliente: {{ $json.chatInput }}\nINSTRUCCIONES:\n- Si la pregunta es sobre productos, precios o\ndisponibilidad usa la información del catálogo\n- Si no encuentras información específica, menciona que\nrevisarás con el equipo\n- Si es una consulta general, responde de manera amigable\ny profesional\n- Mantén un tono conversacional y útil",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -560,
+        0
+      ],
+      "id": "05a80cff-2edd-4c0c-9b94-d3e7151032e2",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -672,
+        224
+      ],
+      "id": "f1138083-8f00-431d-8c08-222243e2d8f4",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "uppimy3fORJiVyZd",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableName": "n8n_con_base",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        -544,
+        224
+      ],
+      "id": "6201edd3-b003-42a5-a135-8779561a5282",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "r9y0IWsaE5DYOOMT",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Esta herramienta busca en la base de datos de productos y devuelve información relevante sobre productos, precios у disponibilidad",
+        "documentId": {
+          "__rl": true,
+          "value": "1BWqUI3Xelk3pReJFmps4_oqCbG-rC9QGyJeSOsnquVU",
+          "mode": "list",
+          "cachedResultName": "Análisis con Gemini",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1BWqUI3Xelk3pReJFmps4_oqCbG-rC9QGyJeSOsnquVU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1BWqUI3Xelk3pReJFmps4_oqCbG-rC9QGyJeSOsnquVU/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -416,
+        224
+      ],
+      "id": "d338d23d-280d-45c8-a43b-00f098082584",
+      "name": "googleSheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ZKBhfgFf8EWYYvlS",
+          "name": "Conexión Google"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Esta herramienta extrae información de la página de preguntas frecuentes sobre nuestros productos.",
+        "url": "=https://gsanchezd.github.io/ecotech-faq/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        -288,
+        224
+      ],
+      "id": "b2659a0c-f923-4b8c-825f-02e91e16416c",
+      "name": "siteSearch"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "googleSheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "siteSearch": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "de502f92-3c6b-4674-8c03-c4ba1de0540d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ad403fd57ae03c56950f4c55ae2922abae5638baffab652d213fff0a7952d61d"
+  },
+  "id": "AIdA9X5Sfeqd2TO0",
+  "tags": []
+}
