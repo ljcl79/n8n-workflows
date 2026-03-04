@@ -1,0 +1,359 @@
+{
+  "name": "Chat - Redis",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "options": {
+          "responseMode": "responseNodes"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "2d8c5af5-9735-4cd0-9ea4-b3180ffcf7c9",
+      "name": "When chat message received",
+      "webhookId": "8f9ea34c-a219-414e-a29d-f941cb45c0b4"
+    },
+    {
+      "parameters": {
+        "operation": "push",
+        "list": "={{ $json.sessionId }}",
+        "messageData": "={{ $json.chatInput }}",
+        "tail": true
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "ad538e1e-ea99-471e-8895-f832cdba3c02",
+      "name": "Redis",
+      "credentials": {
+        "redis": {
+          "id": "u2fYJctdmEKExj9p",
+          "name": "Redis account info@leonardojose.dev"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "key": "={{ $('When chat message received').item.json.sessionId }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        672,
+        0
+      ],
+      "id": "267ce1eb-011b-48cd-b53f-cc7587853f15",
+      "name": "Redis1",
+      "credentials": {
+        "redis": {
+          "id": "u2fYJctdmEKExj9p",
+          "name": "Redis account info@leonardojose.dev"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "8101be8e-3c98-4439-a5f5-5933c015a433",
+      "name": "Wait",
+      "webhookId": "e15188d0-fafb-42ea-8fa6-ab295a337773"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "3834325a-2f9b-4dec-8782-d81ed034ca1c",
+              "leftValue": "={{ $('When chat message received').item.json.chatInput }}",
+              "rightValue": "={{ $json.propertyName[$json.propertyName.length-1] }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        896,
+        0
+      ],
+      "id": "5985e57b-0c2e-44c3-ba10-a4877ec29777",
+      "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        96
+      ],
+      "id": "b6de362a-9d87-47ed-8a6e-7f89f65d81a7",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "={{ $('When chat message received').item.json.sessionId }}"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        -96
+      ],
+      "id": "795fbac4-328c-4d70-b5b8-42a62c5690aa",
+      "name": "Redis2",
+      "credentials": {
+        "redis": {
+          "id": "u2fYJctdmEKExj9p",
+          "name": "Redis account info@leonardojose.dev"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "propertyName",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        -96
+      ],
+      "id": "9391ebf9-989a-4edf-bb8a-7fd7cd6220ee",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "aggregation": "concatenate",
+              "field": "propertyName",
+              "separateBy": "\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        1568,
+        -96
+      ],
+      "id": "62911c3d-44d1-48ec-b5df-dc44aaf8b136",
+      "name": "Summarize"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.concatenated_propertyName }}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        1792,
+        -96
+      ],
+      "id": "705b3cd7-6f6b-4401-b705-38481d64f49a",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1872,
+        128
+      ],
+      "id": "ce082b3d-1fe0-4b6f-965e-5892c9d5b769",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "uppimy3fORJiVyZd",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "message": "={{ $json.text }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chat",
+      "typeVersion": 1.2,
+      "position": [
+        2144,
+        -96
+      ],
+      "id": "8d06b159-f2cd-4792-997b-7f8d76985e79",
+      "name": "Chat",
+      "webhookId": "4754b83d-3fe6-44b3-8d63-8bc15aae21ab"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Redis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Redis1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Redis2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis2": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Summarize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "47e099ad-ceb9-465d-9077-5e7c82a3e3dd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ad403fd57ae03c56950f4c55ae2922abae5638baffab652d213fff0a7952d61d"
+  },
+  "id": "tssNVC4zu2krihtf",
+  "tags": []
+}
