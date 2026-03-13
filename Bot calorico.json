@@ -1,0 +1,1003 @@
+{
+  "name": "Bot calorico",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -400,
+        224
+      ],
+      "id": "1bf0d100-f3ae-4e2b-83f4-a20e68ade450",
+      "name": "Telegram Trigger",
+      "webhookId": "04e6c5b7-7840-4640-95f0-017949ce88ad",
+      "credentials": {
+        "telegramApi": {
+          "id": "Ow1cKWMvjnYWezqI",
+          "name": "n8n_adl_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.message.chat.id }}",
+        "text": "Debes enviar una imagen, un audio o un texto. Por favor verifica",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        48,
+        512
+      ],
+      "id": "39e7823f-4ab7-4926-b4eb-fbf9c2b723c4",
+      "name": "Send a text message",
+      "webhookId": "55eaace6-a648-42e0-88dd-7ff39a46060f",
+      "credentials": {
+        "telegramApi": {
+          "id": "Ow1cKWMvjnYWezqI",
+          "name": "n8n_adl_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.photo[3].file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        48,
+        80
+      ],
+      "id": "5bb08c41-f7f1-4376-b72e-baad6f4b6efa",
+      "name": "Get a file",
+      "webhookId": "4f72c960-bfda-4d64-a86c-dfc6c574f71d",
+      "credentials": {
+        "telegramApi": {
+          "id": "Ow1cKWMvjnYWezqI",
+          "name": "n8n_adl_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "Comida",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "17z0WMEcgcczcpO7EmZjMnTd-15KYykYn",
+          "mode": "list",
+          "cachedResultName": "ADL",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/17z0WMEcgcczcpO7EmZjMnTd-15KYykYn"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        368,
+        384
+      ],
+      "id": "e419b79e-30fe-4c98-bd8f-1bbff18e58b6",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "nymgXZcV5wqRRlYL",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "text": "En la imagen enviada, por favor identifica los alimentos y bebidas presentes,  describe de forma detallada que y cuanto hay de cada uno de los alimentos, usa estas unidades: litros para liquidos y gramos para solidos. \nEn caso de no haber alimentos, retorna el texto imagen sin alimentos",
+        "inputType": "binary",
+        "binaryPropertyName": "=data",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        944,
+        128
+      ],
+      "id": "30abc58e-e8f9-40e9-8812-e2a391a727be",
+      "name": "Analyze an image",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "uppimy3fORJiVyZd",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        496,
+        128
+      ],
+      "id": "48c85a68-9f1b-4d6a-b25b-379a82eb340b",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a64c0e2d-d9c5-4fef-a0a4-78be04e39191",
+              "leftValue": "={{ $json.content.parts[0].text.toLowerCase() }}",
+              "rightValue": "imagen sin alimentos",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1168,
+        128
+      ],
+      "id": "8a348cdb-9514-455a-9e54-ad92668db599",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "En tu imagen no identifique alimentos.  Por favor verifica",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1392,
+        224
+      ],
+      "id": "739617a3-7b3d-45b2-be6a-36888bae323b",
+      "name": "Send a text message1",
+      "webhookId": "e0d67425-1609-4ad8-a50e-650526f5da74",
+      "credentials": {
+        "telegramApi": {
+          "id": "Ow1cKWMvjnYWezqI",
+          "name": "n8n_adl_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Descripción de los alimentos:\n{{ $json.textoAlimentos }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Como nutricionista, analiza los alimentos descritos en el texto, a partir de su tipo y cantidad, calcula el valor calorico de cada uno de alimentos en kcal, así como el valor total del ellos y retornalos."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1872,
+        -64
+      ],
+      "id": "8ff85cdb-5366-418d-87cb-588587e31285",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1840,
+        160
+      ],
+      "id": "00638998-bd9f-41ea-a25b-2691c40b41c7",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "uppimy3fORJiVyZd",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n\t\"type\": \"object\",\n\t\"properties\": {\n\t\t\"alimentos\": {\n\t\t\t\"type\": \"array\",\n          \"items\": {\n            \"type\":\"object\",\n            \"tipo\":{\n              \"type\":\"string\"\n            },\n            \"calorias\": {\n              \"type\":\"number\"\n            }\n          }\n\t\t},\n\t\t\"calorias_totales\": {\n\t\t\t\"type\": \"number\"\n\t\t}\n\t}\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1968,
+        160
+      ],
+      "id": "6faa1ce0-ca3c-4a5c-a3b1-ab67ec0c51e0",
+      "name": "Structured Output Parser",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2048,
+        368
+      ],
+      "id": "d87a873b-1772-4e39-8548-2fbcab09d982",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "uppimy3fORJiVyZd",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1-LTssX30sZeXJMmffL6qLQvrNs-cSxYaeq0R4Azjlv0",
+          "mode": "list",
+          "cachedResultName": "Diario Calórico",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-LTssX30sZeXJMmffL6qLQvrNs-cSxYaeq0R4Azjlv0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Alimentos",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-LTssX30sZeXJMmffL6qLQvrNs-cSxYaeq0R4Azjlv0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Fecha/Hora": "={{ $now.format('dd-MM-yyyy HH:ii') }}",
+            "Alimentos": "={{ $json.output.alimentos.map(item => {\n   if (item.nombre)\n     return item.nombre;\n   else\n     return item.tipo;\n}).join(\", \") }}",
+            "Total Calorias": "={{ $json.output.calorias_totales }}",
+            "Imagem": "={{ $('Edit Fields2').item.json['urlImagen'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Fecha/Hora",
+              "displayName": "Fecha/Hora",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Alimentos",
+              "displayName": "Alimentos",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Total Calorias",
+              "displayName": "Total Calorias",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Imagem",
+              "displayName": "Imagem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2320,
+        -64
+      ],
+      "id": "687e0029-3d9e-4b5d-988f-7ecae5b1546d",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ZKBhfgFf8EWYYvlS",
+          "name": "Conexión Google"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "=Que buena comida, identifiqué que estas comiendo:\n{{ $json.Alimentos }}\n\nTu plato te va a dar: {{ $json['Total Calorias'] }} kcal",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2560,
+        -64
+      ],
+      "id": "97bff7f5-0192-4f49-93ab-5c3e5c6148ec",
+      "name": "Send a text message2",
+      "webhookId": "7b01cf17-1bf3-4a88-a53a-ac0ec19339db",
+      "credentials": {
+        "telegramApi": {
+          "id": "Ow1cKWMvjnYWezqI",
+          "name": "n8n_adl_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.keys().includes('photo')  }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "id": "8264a282-490a-401b-a2ad-8b39339b3f66"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "imagen"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "b4976444-b389-4cc9-a5fd-09c97ddaa0be",
+                    "leftValue": "={{ $json.message.keys().includes('text')  }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Texto"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "e16c6ac5-3358-4cc0-84cd-022256baeed2",
+                    "leftValue": "={{ $json.message.keys().includes('voice')  }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Audio"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -176,
+        192
+      ],
+      "id": "7850e87b-bcf2-4638-9f72-b20098e6227b",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.message.text }}",
+        "guardrails": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.guardrails",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        -256
+      ],
+      "id": "ae4964c9-b6e8-4941-8f53-3f8f6bc0fbcb",
+      "name": "Guardrails"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "Tu texto no cumple con las normas.",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1392,
+        -160
+      ],
+      "id": "9db2749e-512e-4bdc-8930-c682b8b749a0",
+      "name": "Send a text message3",
+      "webhookId": "5427bfaa-4022-45aa-9111-3177f839525d",
+      "credentials": {
+        "telegramApi": {
+          "id": "Ow1cKWMvjnYWezqI",
+          "name": "n8n_adl_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1e54be9b-378e-4d40-bb01-b35d5a7b9141",
+              "name": "textoAlimentos",
+              "value": "={{ $json.guardrailsInput }}",
+              "type": "string"
+            },
+            {
+              "id": "f1885603-9951-4fa8-aa18-95a8dbddb93b",
+              "name": "urlImagen",
+              "value": "Sin imagen",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1392,
+        -352
+      ],
+      "id": "727dba89-0c95-4ac8-9829-63d514d31f94",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "04f3dc4d-316a-48a9-a001-ab9d10d5d128",
+              "name": "textoAlimentos",
+              "value": "={{ $json.content.parts[0].text }}",
+              "type": "string"
+            },
+            {
+              "id": "9727d8e3-85b7-4939-a94f-6ba1107b0764",
+              "name": "urlImagen",
+              "value": "={{ $('Upload file').item.json.webViewLink }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1392,
+        32
+      ],
+      "id": "513a24c4-f7b1-4d3f-8082-c85d22e6073a",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a4123f41-3e3c-40a3-bb16-6e8b1108aa0a",
+              "name": "textoAlimentos",
+              "value": "={{ $json.textoAlimentos }}",
+              "type": "string"
+            },
+            {
+              "id": "ead5fb5e-0b67-44e9-b677-8a68eda59f55",
+              "name": "=urlImagen",
+              "value": "={{ $json.urlImagen }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1616,
+        -64
+      ],
+      "id": "ec88d63d-47eb-4945-9f04-2b7dc7da3d6f",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d895a62d-b0f1-4b01-91a0-15e1f1129d92",
+              "leftValue": "={{ $('Telegram Trigger').item.json.message.keys().includes('photo') }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        720,
+        128
+      ],
+      "id": "26beb83d-27c9-4f00-97c3-ee9960ebd9d1",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        896,
+        416
+      ],
+      "id": "31529cbf-af1b-4772-8e67-e78ec0ebce03",
+      "name": "Transcribe a recording",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "uppimy3fORJiVyZd",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "73427026-7012-4da6-8dd9-46c3c46a443f",
+              "name": "textoAlimentos",
+              "value": "={{ $json.content.parts[0].text }}",
+              "type": "string"
+            },
+            {
+              "id": "d660fb67-66cd-4bcc-b121-30ea042cc7fd",
+              "name": "urlImagen",
+              "value": "={{ $('Upload file').item.json.webContentLink }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1392,
+        416
+      ],
+      "id": "5316658c-c1ac-4526-86d9-2ae9c65777e9",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        48,
+        320
+      ],
+      "id": "1bbb46c2-713d-47e4-b1c5-eb6bfdfa64fa",
+      "name": "Get a file1",
+      "webhookId": "9b118dd1-ae2e-4e28-bc15-3d6a5b4f5389",
+      "credentials": {
+        "telegramApi": {
+          "id": "Ow1cKWMvjnYWezqI",
+          "name": "n8n_adl_bot"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze an image": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Get a file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Guardrails",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get a file1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardrails": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Analyze an image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file1": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "cd0fdbd1-efcf-4c48-b0b4-267ee5e1d97a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ad403fd57ae03c56950f4c55ae2922abae5638baffab652d213fff0a7952d61d"
+  },
+  "id": "hBnj1omINrIWxRET",
+  "tags": []
+}
