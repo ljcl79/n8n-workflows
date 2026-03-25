@@ -1,0 +1,324 @@
+{
+  "name": "Noticias con IA",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -656,
+        0
+      ],
+      "id": "e383bd60-7397-4852-95ac-1aa8e901e538",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://news-api14.p.rapidapi.com/v2/search/articles",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "mascotas"
+            },
+            {
+              "name": "language",
+              "value": "es"
+            },
+            {
+              "name": "from",
+              "value": "3d"
+            },
+            {
+              "name": "limit",
+              "value": "2"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-rapidapi-host",
+              "value": "news-api14.p.rapidapi.com"
+            },
+            {
+              "name": "x-rapidapi-key",
+              "value": "4f470bb6eemsh3d2f9d961e711e8p1ad083jsn3257f6c5e0bb"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -448,
+        0
+      ],
+      "id": "52bfa01a-ac33-4c7c-b4b0-0020f0063801",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        0
+      ],
+      "id": "557de6b4-005e-4277-a436-b90f8979f86e",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "url": "https://news-api14.p.rapidapi.com/v2/article",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $json.url }}"
+            },
+            {
+              "name": "type",
+              "value": "plaintext"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-rapidapi-host",
+              "value": "news-api14.p.rapidapi.com"
+            },
+            {
+              "name": "x-rapidapi-key",
+              "value": "4f470bb6eemsh3d2f9d961e711e8p1ad083jsn3257f6c5e0bb"
+            }
+          ]
+        },
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 10
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -64,
+        0
+      ],
+      "id": "c275d959-d588-470b-9faf-9a6f935a1221",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Crea una nueva noticia enfocada en nuestro ecommerce de mascotas a partir de la siguiente noticia:\n\n{{ $json.data.title }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "systemMessage": "=Actua como redactor de noticias,  toma de la petición del usuario los aspectos más releventes. La noticia generada puede ser solo un parrafo."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "d93b8676-6519-4a55-aaca-68e63eaf9229",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "uppimy3fORJiVyZd",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1kNlLdYGXqzt9NeMz414hfuc8uc7Luj2w94nnU30I1MM",
+          "mode": "list",
+          "cachedResultName": "Noticias generadas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kNlLdYGXqzt9NeMz414hfuc8uc7Luj2w94nnU30I1MM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kNlLdYGXqzt9NeMz414hfuc8uc7Luj2w94nnU30I1MM/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "title": "={{ $('HTTP Request1').item.json.data.title }}",
+            "url": "={{ $('HTTP Request1').item.json.data.url }}",
+            "excerpt": "={{ $('HTTP Request1').item.json.data.excerpt }}",
+            "content": "={{ $('HTTP Request1').item.json.data.content }}",
+            "nuevo articulo": "={{ $json.content.parts[0].text }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "excerpt",
+              "displayName": "excerpt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "content",
+              "displayName": "content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nuevo articulo",
+              "displayName": "nuevo articulo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        576,
+        0
+      ],
+      "id": "d53af392-06ce-4293-83c5-4c4e8eb62abd",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ZKBhfgFf8EWYYvlS",
+          "name": "Conexión Google"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "69bf332c-485e-446e-9051-98f006ea17bd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ad403fd57ae03c56950f4c55ae2922abae5638baffab652d213fff0a7952d61d"
+  },
+  "id": "5sKKqMcGTTqK4rgC",
+  "tags": []
+}
