@@ -1,0 +1,178 @@
+{
+  "name": "n8n - Backend",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "inventario",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -496,
+        0
+      ],
+      "id": "14f6e398-8069-495c-93e2-5a23279a9b93",
+      "name": "Webhook",
+      "webhookId": "d32dda46-093a-4592-8f88-8c79e7a577e6"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.html }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        464,
+        0
+      ],
+      "id": "0f3849c7-af16-4c02-afff-a2bde8ab0509",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "const productos = $( 'Obtener productos'). all();\nconst movimientos = $( 'Obtener movimientos'). all();\n\nconst movPorDia = {};\n\nfor (const m of movimientos) {\n  const fecha = m.json.fecha.split('T')[0];\n\n  if (!movPorDia[fecha]) {\n    movPorDia[fecha] = { entradas: 0, salidas: 0 };\n  }\n  if (m.json.tipo === 'entrada') {\n    movPorDia[fecha].entradas += m.json. cantidad;\n  } else {\n    movPorDia[fecha].salidas += m.json.cantidad;\n  }\n}\n\nconst dias = Object.keys(movPorDia).sort();\nconst entradas = dias. map(d =>movPorDia [d].entradas);\nconst salidas = dias.map(d =>movPorDia[d].salidas);\n\nconst html = `\n<!DOCTYPE html>\n<html>\n\n<head>\n    <script src=\"https://cdn.jsdelivr.net/npm/chart.js\"></script>\n    <style>\n        body {\n            font-family: sans-serif;\n            max-width: 900px;\n            margin: 0 auto;\n            padding: 2rem;\n        }\n    </style>\n</head>\n\n<body>\n    <h1>Movimientos Diarios de Inventario</h1>\n    <canvas id=\"movChart\"></canvas>\n    <script>\n        new Chart(document.getElementById('movChart'), {\n            type: 'bar',\n            data: {\n                labels: ${JSON.stringify(dias) },\n            datasets: [{\n                label: 'Entradas',\n                data: ${JSON.stringify(entradas) },\n            backgroundColor: '#729E2E'\n            }, {\n                label: 'Salidas',\n                data: ${JSON.stringify(salidas) },\n            backgroundColor: '#dc2626'\n            }],\n        }\n    });\n    </script>\n</body>\n\n</html>\n`;\n\nreturn {\n  html\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "26255fb2-f1b0-4da0-9600-c3aa70ca8efa",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "productos",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        -64
+      ],
+      "id": "6d888274-9cdc-4e3c-aeaf-3dadcaa88f61",
+      "name": "Obtener productos",
+      "credentials": {
+        "supabaseApi": {
+          "id": "tBd9iDjlQFQ3DifN",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "movimientos",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -256,
+        112
+      ],
+      "id": "122da1da-cdca-4671-a423-dd4370c052b6",
+      "name": "Obtener movimientos",
+      "credentials": {
+        "supabaseApi": {
+          "id": "tBd9iDjlQFQ3DifN",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        48,
+        0
+      ],
+      "id": "f875ae63-f4d8-401e-a6df-42b9360ffe8d",
+      "name": "Merge"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Obtener productos",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Obtener movimientos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener productos": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener movimientos": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "9e6ddd15-0b25-471d-9c03-f57199dda264",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ad403fd57ae03c56950f4c55ae2922abae5638baffab652d213fff0a7952d61d"
+  },
+  "id": "EUKA6sWZrro4mTva",
+  "tags": []
+}
